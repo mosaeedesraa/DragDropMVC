@@ -1,0 +1,104 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <link rel="stylesheet" type="text/css" href="~/Content/DragDropInteractions/css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/DragDropInteractions/fonts/font-awesome-4.2.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/DragDropInteractions/css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/DragDropInteractions/css/bottom-area.css" />
+
+    <br />
+    <br />
+    <br />
+
+    <div id="grid" class="grid clearfix" style="min-height: 800px">
+        <div id="1" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="2" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="3" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="4" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="5" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="6" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="7" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+        <div id="8" class="grid__item"><i class="fa fa-fw fa-image"></i></div>
+    </div>
+
+    <div id="drop-area" class="drop-area">
+        <div>
+            <div class="drop-area__item">
+                <div class="dummy"></div>
+            </div>
+        </div>
+    </div>
+    <div class="drop-overlay"></div>
+
+
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/modernizr-2.6.2.js"></script>
+    <script src="~/Content/DragDropInteractions/js/draggabilly.pkgd.min.js"></script>
+    <script src="~/Content/DragDropInteractions/js/dragdrop.js"></script>
+    <script>
+        (function () {
+            var body = document.body,
+                dropArea = document.getElementById('drop-area'),
+                droppableArr = [], dropAreaTimeout;
+
+            // initialize droppables
+            [].slice.call(document.querySelectorAll('#drop-area .drop-area__item')).forEach(function (el) {
+                droppableArr.push(new Droppable(el, {
+                    onDrop: function (instance, draggableEl) {
+                        // show checkmark inside the droppabe element
+                        classie.add(instance.el, 'drop-feedback');
+                        clearTimeout(instance.checkmarkTimeout);
+                        instance.checkmarkTimeout = setTimeout(function () {
+                            classie.remove(instance.el, 'drop-feedback');
+                        }, 800);
+                        // ...
+                    }
+                }));
+            });
+
+            // initialize draggable(s)
+            [].slice.call(document.querySelectorAll('#grid .grid__item')).forEach(function (el) {
+                new Draggable(el, droppableArr, {
+                    draggabilly: { containment: document.body },
+                    onStart: function () {
+                        // add class 'drag-active' to body
+                        classie.add(body, 'drag-active');
+                        // clear timeout: dropAreaTimeout (toggle drop area)
+                        clearTimeout(dropAreaTimeout);
+                        // show dropArea
+                        classie.add(dropArea, 'show');
+                    },
+                    onEnd: function (wasDropped) {
+                        var afterDropFn = function () {
+                            // hide dropArea
+                            classie.remove(dropArea, 'show');
+                            // remove class 'drag-active' from body
+                            classie.remove(body, 'drag-active');
+                        };
+
+                        if (!wasDropped) {
+                            afterDropFn();
+                        }
+                        else {
+                            // after some time hide drop area and remove class 'drag-active' from body
+                            clearTimeout(dropAreaTimeout);
+                            dropAreaTimeout = setTimeout(afterDropFn, 400);
+                        }
+                    }
+                });
+            });
+        })();
+    </script>
+
+</body>
+</html>
